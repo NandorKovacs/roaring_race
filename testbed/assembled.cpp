@@ -19,9 +19,19 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
+#include <iostream>
 
 #include "test.h"
 namespace assembled {
+
+struct ControlState {
+  bool accel = false, brake = false, left = false, right = false;
+
+  void print() {
+    std::cout << "{accel: " << accel << ", brake: " << brake << ", left: " << left << ", right: " << right << "}" << std::endl;
+  }
+};
+
 class Wheel {
  public:
   b2Body* wheel;
@@ -63,9 +73,27 @@ class Wheel {
 
   void remove_angular_velocity() { wheel->SetAngularVelocity(0.0f); }
 
-  void update() {
+  void handle_controls(ControlState ctrl_state) {
+    if (ctrl_state.accel != ctrl_state.brake) {
+      b2Vec2 direction = wheel->GetWorldVector({0, 1});
+
+      ctrl_state.print();
+
+      if (ctrl_state.accel == true) {
+        std::cout << "accel" << std::endl;
+        wheel->ApplyForce(100.0f * direction, wheel->GetWorldCenter(), true);
+      }
+      if (ctrl_state.brake == true) {
+        std::cout << "brake" << std::endl;
+        wheel->ApplyForce(-50.0f * direction, wheel->GetWorldCenter(), true);
+      }
+    }
+  }
+
+  void update(ControlState ctrl_state) {
     remove_sideways_slide();
     remove_angular_velocity();
+    handle_controls(ctrl_state);
   }
 };
 
@@ -99,7 +127,6 @@ class Car {
     b2Vec2 tip_vec[3] = {{0, 1.5}, {-1.5, 0}, {1.5, 0}};
     b2Vec2 middle_vec[4] = {{1.5, 0}, {-1.5, 0}, {-1.25, -3.5}, {1.25, -3.5}};
     b2Vec2 bottom_vec[4] = {{1.25, -3.5}, {-1.25, -3.5}, {-2, -6}, {2, -6}};
-
 
     tip.Set(tip_vec, 3);
     middle.Set(middle_vec, 4);
@@ -136,7 +163,50 @@ class WheeledCar : public Test {
 
   static Test* Create() { return new WheeledCar; }
 
+  void Keyboard(int key) {
+    // std::cout << key << std::endl;
+    switch (key) {
+      case GLFW_KEY_W:
+        ctrl_state.accel = true;
+        break;
+      case GLFW_KEY_A:
+        ctrl_state.left = true;
+        break;
+      case GLFW_KEY_S:
+        ctrl_state.brake = true;
+        break;
+      case GLFW_KEY_D:
+        ctrl_state.right = true;
+        break;
+
+      default:
+        Test::Keyboard(key);
+    }
+  }
+
+  void KeyboardUp(int key) {
+    switch (key) {
+      case GLFW_KEY_W:
+        ctrl_state.accel = false;
+        break;
+      case GLFW_KEY_A:
+        ctrl_state.left = false;
+        break;
+      case GLFW_KEY_S:
+        ctrl_state.brake = false;
+        break;
+      case GLFW_KEY_D:
+        ctrl_state.right = false;
+        break;
+
+      default:
+        Test::KeyboardUp(key);
+    }
+  }
+
  private:
+  ControlState ctrl_state;
+
   void create_ground() {
     b2BodyDef ground_body;
     ground_body.type = b2_staticBody;
@@ -164,13 +234,26 @@ class WheeledCar : public Test {
 
   void fix_wheels() {
     b2RevoluteJointDef fl, fr;
-    fl.Initialize(car->car, wheels[0]->wheel, car->car->GetWorldPoint({-1.5, 0}));
-    fr.Initialize(car->car, wheels[1]->wheel, car->car->GetWorldPoint({1.5, 0}));
+    fl.Initialize(car->car, wheels[0]->wheel,
+                  car->car->GetWorldPoint({-1.5, 0}));
+    fr.Initialize(car->car, wheels[1]->wheel,
+                  car->car->GetWorldPoint({1.5, 0}));
+
+    fl.enableLimit = true;
+    fr.enableLimit = true;
+
+    double steering_angle = b2_pi * 5 / 32;
+
+    fl.lowerAngle = -steering_angle;
+    fl.upperAngle = steering_angle;
+    fr.lowerAngle = -steering_angle;
+    fr.upperAngle = steering_angle;
 
     b2WeldJointDef bl, br;
-    bl.Initialize(car->car, wheels[2]->wheel, car->car->GetWorldPoint({-2, -6}));
+    bl.Initialize(car->car, wheels[2]->wheel,
+                  car->car->GetWorldPoint({-2, -6}));
     br.Initialize(car->car, wheels[3]->wheel, car->car->GetWorldPoint({2, -6}));
-  
+
     m_world->CreateJoint(&fl);
     m_world->CreateJoint(&fr);
     m_world->CreateJoint(&bl);
@@ -179,7 +262,7 @@ class WheeledCar : public Test {
 
   void update() {
     for (int i = 0; i < 4; ++i) {
-      wheels[i]->update();
+      wheels[i]->update(ctrl_state);
     }
   }
 };
