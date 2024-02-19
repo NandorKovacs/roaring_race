@@ -88,6 +88,7 @@ class Wheel {
         wheel->ApplyForce(-50.0f * direction, wheel->GetWorldCenter(), true);
       }
     }
+
   }
 
   void update(ControlState ctrl_state) {
