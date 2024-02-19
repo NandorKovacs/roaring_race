@@ -54,7 +54,7 @@ class Wheel {
       jd.bodyB = wheel;
       jd.localAnchorA.SetZero();
       jd.localAnchorB = wheel->GetLocalCenter();
-      jd.collideConnected = false;
+      // jd.collideConnected = false;
       jd.maxForce = 1.0f * wheel->GetMass() * 10;
       jd.maxTorque = 0.7f * wheel->GetInertia() * 2 * 10;
       world->CreateJoint(&jd);
@@ -220,6 +220,7 @@ class WheeledCar : public Test {
     b2FixtureDef fix;
     fix.density = 0.0f;
     fix.shape = &shape;
+    fix.filter.maskBits = 0;
 
     ground->CreateFixture(&fix);
   }

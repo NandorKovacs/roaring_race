@@ -2,14 +2,18 @@
 #include <box2d/b2_friction_joint.h>
 #include <box2d/b2_polygon_shape.h>
 #include <box2d/b2_world.h>
+#include <box2d/b2_revolute_joint.h>
+#include <box2d/b2_weld_joint.h>
 #include <cmath>
 
-float gravity = 9.81;
-float friciton_coefficient = 0.9; // asphalt, according to top google hit
+const float gravity = 9.81;
+const float friciton_coefficient = 0.9; // asphalt, according to top google hit
 
 // represents a car wheel.
 class Wheel {
  public:
+  b2Body* body;
+
   Wheel(b2World* world, b2Body* ground, b2Vec2 position, bool controlable)
       : controlable{controlable} {
     // create wheel physics object
@@ -48,15 +52,11 @@ class Wheel {
     }
   }
 
-  float get_mass() {
-    return body->GetMass();
-  }
-
  private:
   const float width = 0.5, length = 1.0, density = 1.0;
   bool controlable;
 
-  b2Body* body;
+  
   b2FrictionJoint* friction_joint;
 
   void lateral_velocity_tick() {
@@ -101,7 +101,7 @@ class Car {
   
     float sum_mass = hull->GetMass();
     for (Wheel* w : wheel) {
-      sum_mass += w->get_mass();
+      sum_mass += w->body->GetMass();
     }
   
     for (Wheel* w : wheel) {
@@ -110,6 +110,32 @@ class Car {
   
     // set up joints
     
+    // front wheels
+    b2RevoluteJointDef front_joint_def;
+    front_joint_def.bodyA = hull;
+    front_joint_def.enableLimit = true;
+    front_joint_def.lowerAngle = -steering_angle;
+    front_joint_def.upperAngle = steering_angle;
+
+    front_joint_def.bodyB = wheel[FRONT_LEFT]->body;
+    front_joint_def.localAnchorA = front_joint_def.localAnchorB = wheel[FRONT_LEFT]->body->GetWorldCenter();
+    front_joint[FRONT_LEFT] = (b2RevoluteJoint*) world->CreateJoint(&front_joint_def);
+
+    front_joint_def.bodyB = wheel[FRONT_RIGHT]->body;
+    front_joint_def.localAnchorA = front_joint_def.localAnchorB = wheel[FRONT_RIGHT]->body->GetWorldCenter();
+    front_joint[FRONT_RIGHT] = (b2RevoluteJoint*) world->CreateJoint(&front_joint_def);
+
+    // rear wheels
+    b2WeldJointDef rear_joint_def;
+    rear_joint_def.bodyA = hull;
+
+    rear_joint_def.bodyB = wheel[REAR_LEFT]->body;
+    rear_joint_def.localAnchorA = rear_joint_def.localAnchorB = wheel[REAR_LEFT]->body->GetWorldCenter();
+    rear_joint[REAR_LEFT - 2] = (b2WeldJoint*) world->CreateJoint(&rear_joint_def);
+
+    rear_joint_def.bodyB = wheel[REAR_RIGHT]->body;
+    rear_joint_def.localAnchorA = rear_joint_def.localAnchorB = wheel[REAR_RIGHT]->body->GetWorldCenter();
+    rear_joint[REAR_RIGHT - 2] = (b2WeldJoint*) world->CreateJoint(&rear_joint_def);
   }
 
   void tick() {
@@ -119,12 +145,21 @@ class Car {
   }
 
  private:
-  const float density = 1.0;
+  const float density = 1.0, steering_angle = b2_pi * 5 / 32;
 
   b2Body* hull;
 
   // front left, front right,
   Wheel* wheel[4];
+  b2RevoluteJoint* front_joint[2];
+  b2WeldJoint* rear_joint[2];
+
+  b2Joint* get_joint(WheelID wheel_id) {
+    if (wheel_id < 3) {
+      return front_joint[wheel_id];
+    }
+    return rear_joint[wheel_id - 2];
+  }
 
   void setup_hull() {
     b2PolygonShape tip, middle, bottom;
@@ -142,4 +177,16 @@ class Car {
   }
 };
 
-int main() {}
+b2Body* create_ground(b2World* world) {
+  b2BodyDef body_def;
+  body_def.type = b2_staticBody;
+  body_def.position = {0,0};
+  return world->CreateBody(&body_def);
+}
+
+int main() {
+  b2World* world = new b2World({0,0});
+  b2Body* body = create_ground(world);
+
+  
+}
