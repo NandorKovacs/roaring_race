@@ -10,6 +10,8 @@
 
 #include <cmath>
 
+// TODO: destructors
+
 const float gravity = 9.81;
 const float friciton_coefficient = 0.9; // asphalt, according to top google hit
 
