@@ -41,7 +41,7 @@ class DrawableCar : public sf::Drawable {
  private:
   CarState state;
 
-  sf::VertexArray shape;
+  std::vector<sf::Vertex> shape;
 
   void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 };
