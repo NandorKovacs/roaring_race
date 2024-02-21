@@ -3,18 +3,46 @@
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Drawable.hpp>
-
+#include <SFML/Graphics/PrimitiveType.hpp>
+#include <unordered_set>
 
 class GameWindow {
  public:
   GameWindow();
   void tick();
+
+  void add_drawable(sf::Drawable* drawable) {
+    drawables.insert(drawable);
+  }
+
+  void pop_drawable(sf::Drawable* drawable) {
+    drawables.erase(drawable);
+  }
+
  private:
+  sf::Vector2u origin;
   sf::RenderWindow window;
+
+  std::unordered_set<sf::Drawable*> drawables;
+};
+
+struct CarState {
+  sf::Vector2f position;
+  float angle;
+  float wheel_angle;
 };
 
 class DrawableCar : public sf::Drawable {
+ public:
+  DrawableCar();
+
+  void set_state(CarState new_state);
+
  private:
+  CarState state;
+
+  sf::VertexArray shape;
+
   void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 };
 

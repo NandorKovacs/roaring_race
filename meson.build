@@ -12,3 +12,4 @@ graphics_lib = library('graphics','graphics/window.cc', dependencies : sfml_dep)
 graphics_dep = sfml_dep + declare_dependency(link_with : graphics_lib)
 
 executable('sfml_window_test', 'sfml_window_test.cc', dependencies : graphics_dep)
+executable('sfml_car_test', 'sfml_car_test.cc', dependencies : graphics_dep)
