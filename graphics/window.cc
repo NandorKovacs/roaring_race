@@ -4,7 +4,7 @@
 #include <SFML/Graphics/Drawable.hpp>
 #include <vector>
 
-GameWindow::GameWindow() : window(sf::VideoMode(800, 600), "roaring race") {
+GameWindow::GameWindow() : window(sf::VideoMode(1600, 1200), "roaring race") {
   origin = {400, 300};
 }
 
@@ -32,16 +32,37 @@ void GameWindow::tick() {
   window.display();
 }
 
+bool GameWindow::isOpen() { return window.isOpen(); }
+
 DrawableCar::DrawableCar() {
   sf::Vector2f v[15] = {{0, 0},       {-1.5, -1.5}, {1.5, -1.5}, {1.5, -1.5},
                         {-1.5, -1.5}, {-1.25, -5},  {1.5, -1.5}, {-1.25, -5},
                         {1.25, -5},   {1.25, -5},   {-1.25, -5}, {-2, -7.5},
                         {1.25, -5},   {-2, -7.5},   {2, -7.5}};
 
-  state = {{0, 0}, 30, 0};
+  state = {{0, 0}, 0, 0};
 
   for (sf::Vector2f vv : v) {
     shape.push_back(sf::Vertex(vv, sf::Color::Green));
+  }
+}
+
+void DrawableCar::draw_wheels(sf::RenderTarget& target,
+                              sf::RenderStates states) const {
+  sf::Vector2f wheel_joint[4] = {
+      {-1.5, -1.5}, {1.5, -1.5}, {-2, -7.5}, {2, -7.5}};
+
+  for (int i = 0; i < 4; ++i) {
+    sf::RectangleShape wheel({0.5, 1});
+    wheel.setOrigin({0.25, 0.5});
+
+    if (i < 2) {
+      wheel.setRotation(state.wheel_angle);
+    }
+
+    wheel.setPosition(wheel_joint[i]);
+
+    target.draw(wheel, states);
   }
 }
 
@@ -54,6 +75,7 @@ void DrawableCar::draw(sf::RenderTarget& target,
   states.transform.rotate(state.angle + 180, {0, 0});
   states.transform.translate(state.position);
 
+  draw_wheels(target, states);
   target.draw(shape.data(), shape.size(), sf::Triangles, states);
 }
 

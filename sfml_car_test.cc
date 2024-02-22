@@ -7,7 +7,7 @@ int main() {
 
   window.add_drawable(&car);
 
-  while (true) {
+  while (window.isOpen()) {
     window.tick();
   }
 }

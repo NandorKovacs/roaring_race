@@ -19,6 +19,8 @@ class GameWindow {
     drawables.erase(drawable);
   }
 
+  bool isOpen();
+
  private:
   sf::Vector2u origin;
   sf::RenderWindow window;
@@ -44,6 +46,7 @@ class DrawableCar : public sf::Drawable {
   std::vector<sf::Vertex> shape;
 
   void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+  void draw_wheels(sf::RenderTarget& target, sf::RenderStates states) const;
 };
 
 #endif

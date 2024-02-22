@@ -36,9 +36,9 @@ void Wheel::tick() {
   lateral_velocity_tick();
   angular_velocity_tick();
 
-  if (controlable) {
-    control_tick();
-  }
+  // if (controlable) {
+  //   control_tick();
+  // }
 }
 
 void Wheel::lateral_velocity_tick() {
