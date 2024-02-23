@@ -26,6 +26,7 @@ int main() {
 
   while (true) {
     std::cout << "car: " << "{" << car.pos().x << ", " << car.pos().y << "}" << std::endl;
+    car.tick();
     world->Step(time_step, velocity_iterations, position_iterations);
   }
 }
