@@ -11,18 +11,15 @@ class GameWindow {
   GameWindow();
   void tick();
 
-  void add_drawable(sf::Drawable* drawable) {
-    drawables.insert(drawable);
-  }
+  void add_drawable(sf::Drawable* drawable) { drawables.insert(drawable); }
 
-  void pop_drawable(sf::Drawable* drawable) {
-    drawables.erase(drawable);
-  }
+  void pop_drawable(sf::Drawable* drawable) { drawables.erase(drawable); }
 
   bool isOpen();
 
  private:
-  sf::Vector2u origin;
+  // TODO: why do we have this variable??
+  // sf::Vector2u origin;
   sf::RenderWindow window;
 
   std::unordered_set<sf::Drawable*> drawables;
@@ -39,11 +36,15 @@ class DrawableCar : public sf::Drawable {
   DrawableCar();
 
   void set_state(CarState new_state);
+  CarState get_state();
 
- private:
+  private:
   CarState state;
 
   std::vector<sf::Vertex> shape;
+
+  sf::Vector2f wheel_size;
+  sf::Vector2f wheel_joint[4];
 
   void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
   void draw_wheels(sf::RenderTarget& target, sf::RenderStates states) const;

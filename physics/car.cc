@@ -1,5 +1,7 @@
 #include "car.h"
 
+#include <iostream>
+
 Wheel::Wheel(b2World* world, b2Body* ground, b2Vec2 position, bool controlable)
     : controlable{controlable} {
   // create wheel physics object
@@ -42,7 +44,7 @@ void Wheel::tick() {
 }
 
 void Wheel::lateral_velocity_tick() {
-  b2Vec2 lateral_direction = body->GetWorldVector({0, 1});
+  b2Vec2 lateral_direction = body->GetWorldVector({1, 0});
   b2Vec2 velocity = body->GetLinearVelocity();
 
   b2Vec2 lateral_velocity =
@@ -84,35 +86,32 @@ Car::Car(b2World* world, b2Body* ground, b2Vec2 position) {
 
   // front wheels
   b2RevoluteJointDef front_joint_def;
-  front_joint_def.bodyA = hull;
+
   front_joint_def.enableLimit = true;
   front_joint_def.lowerAngle = -steering_angle;
   front_joint_def.upperAngle = steering_angle;
 
-  front_joint_def.bodyB = wheel[FRONT_LEFT]->body;
-  front_joint_def.localAnchorA = front_joint_def.localAnchorB =
-      wheel[FRONT_LEFT]->body->GetWorldCenter();
+  front_joint_def.Initialize(hull, wheel[FRONT_LEFT]->body,
+                             wheel[FRONT_LEFT]->body->GetWorldCenter());
   front_joint[FRONT_LEFT] =
       (b2RevoluteJoint*)world->CreateJoint(&front_joint_def);
 
-  front_joint_def.bodyB = wheel[FRONT_RIGHT]->body;
-  front_joint_def.localAnchorA = front_joint_def.localAnchorB =
-      wheel[FRONT_RIGHT]->body->GetWorldCenter();
+  front_joint_def.Initialize(hull, wheel[FRONT_RIGHT]->body,
+                             wheel[FRONT_RIGHT]->body->GetWorldCenter());
   front_joint[FRONT_RIGHT] =
       (b2RevoluteJoint*)world->CreateJoint(&front_joint_def);
 
   // rear wheels
   b2WeldJointDef rear_joint_def;
-  rear_joint_def.bodyA = hull;
 
-  rear_joint_def.bodyB = wheel[REAR_LEFT]->body;
-  rear_joint_def.localAnchorA = rear_joint_def.localAnchorB =
-      wheel[REAR_LEFT]->body->GetWorldCenter();
+  rear_joint_def.Initialize(hull, wheel[REAR_LEFT]->body,
+                            wheel[REAR_LEFT]->body->GetWorldCenter());
   rear_joint[REAR_LEFT - 2] = (b2WeldJoint*)world->CreateJoint(&rear_joint_def);
 
-  rear_joint_def.bodyB = wheel[REAR_RIGHT]->body;
-  rear_joint_def.localAnchorA = rear_joint_def.localAnchorB =
-      wheel[REAR_RIGHT]->body->GetWorldCenter();
+  rear_joint_def.Initialize(hull, wheel[REAR_RIGHT]->body,
+                            wheel[REAR_RIGHT]->body->GetWorldCenter());
+  rear_joint[REAR_LEFT - 2] = (b2WeldJoint*)world->CreateJoint(&rear_joint_def);
+
   rear_joint[REAR_RIGHT - 2] =
       (b2WeldJoint*)world->CreateJoint(&rear_joint_def);
 }

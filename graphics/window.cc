@@ -5,13 +5,15 @@
 #include <vector>
 
 GameWindow::GameWindow() : window(sf::VideoMode(1600, 1200), "roaring race") {
-  origin = {400, 300};
+  // TODO: why do we have this variable??
+  // origin = {400, 300};
 }
 
 void GameWindow::tick() {
-  origin = window.getSize();
-  origin.x /= 2;
-  origin.y /= 2;
+  // TODO: why do we have this variable??
+  // origin = window.getSize();
+  // origin.x /= 2;
+  // origin.y /= 2;
 
   sf::Event event;
   while (window.pollEvent(event)) {
@@ -35,12 +37,19 @@ void GameWindow::tick() {
 bool GameWindow::isOpen() { return window.isOpen(); }
 
 DrawableCar::DrawableCar() {
+  state = {{0, 0}, 0, 0};
+
   sf::Vector2f v[15] = {{0, 0},       {-1.5, -1.5}, {1.5, -1.5}, {1.5, -1.5},
                         {-1.5, -1.5}, {-1.25, -5},  {1.5, -1.5}, {-1.25, -5},
                         {1.25, -5},   {1.25, -5},   {-1.25, -5}, {-2, -7.5},
                         {1.25, -5},   {-2, -7.5},   {2, -7.5}};
 
-  state = {{0, 0}, 0, 0};
+  wheel_joint[0] = {-1.5, -1.5};
+  wheel_joint[1] = {1.5, -1.5};
+  wheel_joint[2] = {-2, -7.5};
+  wheel_joint[3] = {2, -7.5};
+  wheel_size.x = 0.5;
+  wheel_size.y = 1;
 
   for (sf::Vector2f vv : v) {
     shape.push_back(sf::Vertex(vv, sf::Color::Green));
@@ -49,12 +58,9 @@ DrawableCar::DrawableCar() {
 
 void DrawableCar::draw_wheels(sf::RenderTarget& target,
                               sf::RenderStates states) const {
-  sf::Vector2f wheel_joint[4] = {
-      {-1.5, -1.5}, {1.5, -1.5}, {-2, -7.5}, {2, -7.5}};
-
   for (int i = 0; i < 4; ++i) {
-    sf::RectangleShape wheel({0.5, 1});
-    wheel.setOrigin({0.25, 0.5});
+    sf::RectangleShape wheel({wheel_size.x, wheel_size.y});
+    wheel.setOrigin({wheel_size.x / 2, wheel_size.y / 2});
 
     if (i < 2) {
       wheel.setRotation(state.wheel_angle);
@@ -68,9 +74,9 @@ void DrawableCar::draw_wheels(sf::RenderTarget& target,
 
 void DrawableCar::draw(sf::RenderTarget& target,
                        sf::RenderStates states) const {
-  sf::Vector2u origin = target.getSize();
-  origin.x /= 2;
-  origin.y /= 2;
+  // sf::Vector2u origin = target.getSize();
+  // origin.x /= 2;
+  // origin.y /= 2;
 
   states.transform.rotate(state.angle + 180, {0, 0});
   states.transform.translate(state.position);
@@ -80,3 +86,4 @@ void DrawableCar::draw(sf::RenderTarget& target,
 }
 
 void DrawableCar::set_state(CarState new_state) { state = new_state; }
+CarState DrawableCar::get_state() { return state; };

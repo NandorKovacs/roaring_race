@@ -34,7 +34,9 @@ class PhysicsCar : public Test {
  public:
   PhysicsCar()
       : ground{create_ground(m_world)},
-        car{m_world, ground, {10, 10}} {}  // do nothing, no scene yet
+        car{m_world, ground, {10, 10}} {
+          m_world->SetGravity(b2Vec2(0.0f, 0.0f));
+        }  // do nothing, no scene yet
 
   void Step(Settings& settings) {
     car.tick();
