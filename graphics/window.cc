@@ -35,6 +35,7 @@ void GameWindow::tick() {
 }
 
 bool GameWindow::isOpen() { return window.isOpen(); }
+void GameWindow::close() { window.close(); }
 
 DrawableCar::DrawableCar() {
   state = {{0, 0}, 0, 0};
@@ -63,7 +64,7 @@ void DrawableCar::draw_wheels(sf::RenderTarget& target,
     wheel.setOrigin({wheel_size.x / 2, wheel_size.y / 2});
 
     if (i < 2) {
-      wheel.setRotation(state.wheel_angle);
+      wheel.setRotation(state.wheel_angle[i]);
     }
 
     wheel.setPosition(wheel_joint[i]);

@@ -12,10 +12,10 @@ class GameWindow {
   void tick();
 
   void add_drawable(sf::Drawable* drawable) { drawables.insert(drawable); }
-
   void pop_drawable(sf::Drawable* drawable) { drawables.erase(drawable); }
 
   bool isOpen();
+  void close();
 
  private:
   // TODO: why do we have this variable??
@@ -26,9 +26,9 @@ class GameWindow {
 };
 
 struct CarState {
-  sf::Vector2f position;
-  float angle;
-  float wheel_angle;
+  sf::Vector2f position = {0,0};
+  float angle = 0;
+  float wheel_angle[2] = {0,0};
 };
 
 class DrawableCar : public sf::Drawable {

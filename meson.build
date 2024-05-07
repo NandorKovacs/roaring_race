@@ -23,3 +23,6 @@ executable('sfml_window_test', 'sfml_window_test.cc', dependencies : graphics_de
 executable('sfml_car_test', 'sfml_car_test.cc', dependencies : graphics_dep)
 
 executable('physics_test', 'physics_test.cc', dependencies : physics_dep)
+executable('sfml_events_test', 'sfml_event_test.cc', dependencies: sfml_dep)
+
+executable('roaring_race', 'roaring_race.cc', dependencies: graphics_dep + physics_dep)

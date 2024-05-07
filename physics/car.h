@@ -49,10 +49,10 @@ class Car {
     }
   }
 
-  b2Vec2 pos() {
-    return hull->GetWorldPoint({0,0});
-  }
-
+  // getters
+  b2Vec2 pos();
+  float angle();
+  float wheel_angle(WheelID id);
  private:
   const float density = 1.0, steering_angle = b2_pi * 5 / 32;
 

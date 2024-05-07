@@ -56,6 +56,8 @@ void Wheel::lateral_velocity_tick() {
 
 void Wheel::angular_velocity_tick() { body->SetAngularVelocity(0.0); }
 
+void Wheel::control_tick() {}
+
 Car::Car(b2World* world, b2Body* ground, b2Vec2 position) {
   // set up car body
   b2BodyDef body_def;
@@ -129,4 +131,12 @@ void Car::setup_hull() {
   hull->CreateFixture(&tip, density);
   hull->CreateFixture(&middle, density);
   hull->CreateFixture(&bottom, density);
+}
+
+b2Vec2 Car::pos() { return hull->GetWorldPoint({0, 0}); }
+
+float Car::angle() { return hull->GetAngle(); }
+
+float Car::wheel_angle(WheelID id) {
+  return wheel[id]->body->GetAngle() - hull->GetAngle();
 }

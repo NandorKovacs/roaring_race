@@ -82,7 +82,10 @@
     "valarray": "cpp",
     "variant": "cpp",
     "csignal": "cpp",
-    "expected": "cpp"
+    "expected": "cpp",
+    "regex": "cpp",
+    "coroutine": "cpp"
   },
-  "C_Cpp.default.compileCommands": "/home/nandor/prg/box2d/roaring_race/build/compile_commands.json"
+  "C_Cpp.default.compileCommands": "/home/nandor/prg/box2d/roaring_race/build/compile_commands.json",
+  "C_Cpp.default.configurationProvider": "mesonbuild.mesonbuild"
 }
