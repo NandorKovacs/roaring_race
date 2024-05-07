@@ -35,8 +35,9 @@ class MutexVar {
   template <typename U>
   U exec_with(std::function<U(T)> *func) {
     mut.lock();
-    return *func(data);
+    U res = *func(data);
     mut.unlock();
+    return res;
   }
 
  private:
