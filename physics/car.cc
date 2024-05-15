@@ -1,7 +1,9 @@
 #include "car.h"
 
 #include <iostream>
+#include <unordered_set>
 
+namespace ph {
 Wheel::Wheel(b2World* world, b2Body* ground, b2Vec2 position, bool controlable)
     : controlable{controlable} {
   // create wheel physics object
@@ -34,13 +36,13 @@ void Wheel::set_friction(float mass, float coeff) {
                                b2Distance({0, 0}, {width / 2, length / 2}));
 }
 
-void Wheel::tick() {
+void Wheel::tick(std::unordered_set<Action> const& actions) {
   lateral_velocity_tick();
   angular_velocity_tick();
 
-  // if (controlable) {
-  //   control_tick();
-  // }
+  if (controlable) {
+    control_tick(actions);
+  }
 }
 
 void Wheel::lateral_velocity_tick() {
@@ -56,7 +58,38 @@ void Wheel::lateral_velocity_tick() {
 
 void Wheel::angular_velocity_tick() { body->SetAngularVelocity(0.0); }
 
-void Wheel::control_tick() {}
+void Wheel::control_tick(std::unordered_set<Action> const& actions) {
+  int accel = 0;
+  int right = 0;
+
+  for (Action action : actions) {
+    switch (action) {
+      case ACCEL:
+        ++accel;
+        break;
+      case BREAK:
+        --accel;
+        break;
+      case RIGHT:
+        ++right;
+        break;
+      case LEFT:
+        --right;
+        break;
+    }
+  }
+
+  b2Vec2 direction = body->GetWorldVector({0, 1});
+  b2Vec2 center = body->GetWorldCenter();
+
+  if (accel != 0) {
+    body->ApplyForce(accel * 100.0f * direction, center, true);
+  }
+
+  if (right != 0) {
+    body->ApplyTorque(right * 15.0f, true);
+  }
+}
 
 Car::Car(b2World* world, b2Body* ground, b2Vec2 position) {
   // set up car body
@@ -140,3 +173,11 @@ float Car::angle() { return hull->GetAngle(); }
 float Car::wheel_angle(WheelID id) {
   return wheel[id]->body->GetAngle() - hull->GetAngle();
 }
+
+void Car::tick(std::unordered_set<Action> const& actions) {
+  for (Wheel* w : wheel) {
+    w->tick(actions);
+  }
+}
+
+}  // namespace ph

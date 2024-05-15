@@ -84,8 +84,10 @@
     "csignal": "cpp",
     "expected": "cpp",
     "regex": "cpp",
-    "coroutine": "cpp"
+    "coroutine": "cpp",
+    "text_encoding": "cpp"
   },
   "C_Cpp.default.compileCommands": "/home/nandor/prg/box2d/roaring_race/build/compile_commands.json",
-  "C_Cpp.default.configurationProvider": "mesonbuild.mesonbuild"
+  "C_Cpp.default.configurationProvider": "mesonbuild.mesonbuild",
+  "C_Cpp.default.compilerPath": "/usr/bin/g++"
 }

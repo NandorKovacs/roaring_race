@@ -5,6 +5,9 @@
 #include <SFML/Graphics/Drawable.hpp>
 #include <SFML/Graphics/PrimitiveType.hpp>
 #include <unordered_set>
+#include <common/common_data.h>
+
+namespace gui {
 
 class GameWindow {
  public:
@@ -26,19 +29,19 @@ class GameWindow {
 };
 
 struct CarState {
-  sf::Vector2f position = {0,0};
+  sf::Vector2f position = {0, 0};
   float angle = 0;
-  float wheel_angle[2] = {0,0};
+  float wheel_angle[2] = {0, 0};
 };
 
 class DrawableCar : public sf::Drawable {
  public:
   DrawableCar();
 
-  void set_state(CarState new_state);
-  CarState get_state();
+  void set_state(CarData new_state);
+  CarData get_state();
 
-  private:
+ private:
   CarState state;
 
   std::vector<sf::Vertex> shape;
@@ -49,5 +52,7 @@ class DrawableCar : public sf::Drawable {
   void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
   void draw_wheels(sf::RenderTarget& target, sf::RenderStates states) const;
 };
+
+}  // namespace gui
 
 #endif

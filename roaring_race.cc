@@ -2,50 +2,44 @@
 #include <box2d/b2_world.h>
 
 #include <chrono>
-#include <functional>
 #include <iostream>
 #include <mutex>
 #include <thread>
+#include <unordered_map>
+#include <unordered_set>
 
+#include "common/common_data.h"
+#include "common/key_handler.h"
 #include "graphics/window.h"
 #include "physics/car.h"
+
+class MutexInputHandler : public MutexVar<InputHandler> {
+ public:
+  void init_physics_keys(std::unordered_map<Key, KeyboardResult> &result) {
+    mut.lock();
+    data.init_physics_keys(result);
+    mut.unlock();
+  }
+  void init_gui_keys(std::unordered_map<Key, KeyboardResult> &result) {
+    mut.lock();
+    data.init_gui_keys(result);
+    mut.unlock();
+  }
+  void tick(std::unordered_map<Key, KeyboardResult> &result) {
+    mut.lock();
+    data.tick(result);
+    mut.unlock();
+  }
+};
+
+namespace ph {
 
 using Clock = std::chrono::high_resolution_clock;
 using TimePoint = std::chrono::time_point<Clock>;
 
-template <typename T>
-class MutexVar {
- public:
-  MutexVar(T data) : data{data} {}
-  MutexVar() : data{} {}
-
-  void set(T new_data) {
-    mut.lock();
-    data = new_data;
-    mut.unlock();
-  }
-
-  T get() {
-    mut.lock();
-    T new_data = data;
-    mut.unlock();
-    return new_data;
-  }
-
-  template <typename U>
-  U exec_with(std::function<U(T)> *func) {
-    mut.lock();
-    U res = *func(data);
-    mut.unlock();
-    return res;
-  }
-
- private:
-  T data;
-  std::mutex mut;
-};
-
-void physics_main(MutexVar<CarState> &car_state, MutexVar<bool> &is_running) {
+void physics_main(MutexVar<CarData> &car_state,
+                  MutexInputHandler &input_handler,
+                  MutexVar<bool> &is_running) {
   b2World *world = new b2World({0, 0});
   std::cout << "starting physics thread" << std::endl;
   // create ground
@@ -61,6 +55,9 @@ void physics_main(MutexVar<CarState> &car_state, MutexVar<bool> &is_running) {
   int32 velocity_iterations = 10;
   int32 position_iterations = 8;
 
+  std::unordered_map<Key, KeyboardResult> keyboard_input;
+
+  input_handler.init_physics_keys(keyboard_input);
   TimePoint prev, cur;
   while (true) {
     std::chrono::time_point prev = std::chrono::high_resolution_clock::now();
@@ -70,25 +67,52 @@ void physics_main(MutexVar<CarState> &car_state, MutexVar<bool> &is_running) {
 
     // setting car state
     car_state.set(
-        {sf::Vector2f(car.pos().x, car.pos().y),
+        {{car.pos().x, car.pos().y},
          car.angle(),
          {car.wheel_angle(FRONT_LEFT), car.wheel_angle(FRONT_RIGHT)}});
     // --
 
-    // scheduling 
+    // scheduling
     cur = Clock::now();
     std::this_thread::sleep_for(
         std::chrono::duration<double, std::micro>(100000 / 6) -
         std::chrono::duration<double, std::micro>(cur - prev));
     prev = Clock::now();
     // --
-    
-    car.tick();
+
+    input_handler.tick(keyboard_input);
+    std::unordered_set<Action> actions;
+    for (auto [key, res] : keyboard_input) {
+      if (!res.get()) {
+        continue;
+      }
+      switch (key) {
+        case FRONT:
+          actions.insert(ACCEL);
+          break;
+        case BACK:
+          actions.insert(BREAK);
+          break;
+        case Key::LEFT:
+          actions.insert(Action::LEFT);
+          break;
+        case Key::RIGHT:
+          actions.insert(Action::RIGHT);
+          break;
+      }
+    }
+
+    car.tick(actions);
     world->Step(time_step, velocity_iterations, position_iterations);
   }
 }
 
-void window_main(MutexVar<CarState> &car_state, MutexVar<bool> &is_running) {
+}  // namespace ph
+
+namespace gui {
+
+void window_main(MutexVar<CarData> &car_state, MutexInputHandler &input_handler,
+                 MutexVar<bool> &is_running) {
   std::cout << "starting window thread" << std::endl;
   GameWindow window{};
   DrawableCar car{};
@@ -108,14 +132,17 @@ void window_main(MutexVar<CarState> &car_state, MutexVar<bool> &is_running) {
   is_running.set(false);
 }
 
-int main() {
-  MutexVar<CarState> car_state;
-  MutexVar<bool> is_running(true);
+}  // namespace gui
 
-  std::thread window_thread(window_main, std::ref(car_state),
-                            std::ref(is_running));
-  std::thread physics_thread(physics_main, std::ref(car_state),
-                             std::ref(is_running));
+int main() {
+  MutexVar<CarData> car_state;
+  MutexVar<bool> is_running(true);
+  MutexInputHandler input_handler;
+
+  std::thread window_thread(gui::window_main, std::ref(car_state),
+                            std::ref(input_handler), std::ref(is_running));
+  std::thread physics_thread(ph::physics_main, std::ref(car_state),
+                             std::ref(input_handler), std::ref(is_running));
   window_thread.join();
   physics_thread.join();
 }

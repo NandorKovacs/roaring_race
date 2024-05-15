@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Drawable.hpp>
 #include <vector>
+namespace gui {
 
 GameWindow::GameWindow() : window(sf::VideoMode(1600, 1200), "roaring race") {
   // TODO: why do we have this variable??
@@ -86,5 +87,20 @@ void DrawableCar::draw(sf::RenderTarget& target,
   target.draw(shape.data(), shape.size(), sf::Triangles, states);
 }
 
-void DrawableCar::set_state(CarState new_state) { state = new_state; }
-CarState DrawableCar::get_state() { return state; };
+void DrawableCar::set_state(CarData new_state) {
+  state.angle = new_state.angle;
+  state.wheel_angle[0] = new_state.wheel_angle[0];
+  state.wheel_angle[1] = new_state.wheel_angle[1];
+  state.position =
+      sf::Vector2f{new_state.position.first, new_state.position.second};
+}
+CarData DrawableCar::get_state() {
+  CarData res;
+  res.position = {state.position.x, state.position.y};
+  res.angle = state.angle;
+  res.wheel_angle[0] = state.wheel_angle[0];
+  res.wheel_angle[1] = state.wheel_angle[1];
+  return res;
+};
+
+}  // namespace gui

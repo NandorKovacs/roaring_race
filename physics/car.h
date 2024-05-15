@@ -8,12 +8,16 @@
 #include <box2d/b2_weld_joint.h>
 #include <box2d/b2_world.h>
 
+#include <unordered_set>
 #include <cmath>
 
+namespace ph {  
 // TODO: destructors
 
 const float gravity = 9.81;
-const float friciton_coefficient = 0.9; // asphalt, according to top google hit
+const float friciton_coefficient = 0.9;  // asphalt, according to top google hit
+
+enum Action { ACCEL, BREAK, LEFT, RIGHT };
 
 class Wheel {
  public:
@@ -22,8 +26,8 @@ class Wheel {
   Wheel(b2World* world, b2Body* ground, b2Vec2 position, bool controlable);
 
   void set_friction(float mass, float coeff);
-  
-  void tick();
+
+  void tick(std::unordered_set<Action> const& actions);
 
  private:
   const float width = 0.5, length = 1.0, density = 1.0;
@@ -34,7 +38,7 @@ class Wheel {
 
   void lateral_velocity_tick();
   void angular_velocity_tick();
-  void control_tick();
+  void control_tick(std::unordered_set<Action> const& actions);
 };
 
 enum WheelID { FRONT_LEFT, FRONT_RIGHT, REAR_LEFT, REAR_RIGHT };
@@ -43,16 +47,13 @@ class Car {
  public:
   Car(b2World* world, b2Body* ground, b2Vec2 position);
 
-  void tick() {
-    for (Wheel* w : wheel) {
-      w->tick();
-    }
-  }
+  void tick(std::unordered_set<Action> const& actions);
 
   // getters
   b2Vec2 pos();
   float angle();
   float wheel_angle(WheelID id);
+
  private:
   const float density = 1.0, steering_angle = b2_pi * 5 / 32;
 
@@ -66,4 +67,5 @@ class Car {
   void setup_hull();
 };
 
+}  // namespace ph
 #endif

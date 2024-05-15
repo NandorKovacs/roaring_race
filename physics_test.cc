@@ -6,7 +6,7 @@
 #include "physics/car.h"
 
 // mostly tests if the program compiles
-
+namespace ph {
 b2Body* create_ground(b2World* world) {
   b2BodyDef body_def;
   body_def.type = b2_staticBody;
@@ -25,8 +25,14 @@ int main() {
   int32 position_iterations = 8;
 
   while (true) {
-    std::cout << "car: " << "{" << car.pos().x << ", " << car.pos().y << "}" << std::endl;
-    car.tick();
+    std::cout << "car: " << "{" << car.pos().x << ", " << car.pos().y << "}"
+              << std::endl;
+    car.tick({});
     world->Step(time_step, velocity_iterations, position_iterations);
   }
+}
+}  // namespace ph
+
+int main() {
+  return ph::main();
 }
