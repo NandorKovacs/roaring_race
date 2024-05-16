@@ -83,10 +83,12 @@ void Wheel::control_tick(std::unordered_set<Action> const& actions) {
   b2Vec2 center = body->GetWorldCenter();
 
   if (accel != 0) {
+    std::cerr << "applying_force" << std::endl;
     body->ApplyForce(accel * 100.0f * direction, center, true);
   }
 
   if (right != 0) {
+    std::cerr << "applying_torque" << std::endl;
     body->ApplyTorque(right * 15.0f, true);
   }
 }
