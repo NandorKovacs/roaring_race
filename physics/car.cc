@@ -37,15 +37,36 @@ void Wheel::set_friction(float mass, float coeff) {
 }
 
 void Wheel::tick(std::unordered_set<Action> const& actions) {
-  lateral_velocity_tick();
-  angular_velocity_tick();
+  // TODO: stop angular acceleration if reached treshold -> move joint memory from Car to Wheel
+  // TODO: bounce back tires to natural automatically
+
+  int accel = 0;
+  int right = 0;
 
   if (controlable) {
-    control_tick(actions);
+    for (Action action : actions) {
+      switch (action) {
+        case ACCEL:
+          ++accel;
+          break;
+        case BREAK:
+          --accel;
+          break;
+        case RIGHT:
+          ++right;
+          break;
+        case LEFT:
+          --right;
+          break;
+      }
+    }
   }
+
+  angular_velocity_tick(right);
+  lateral_velocity_tick(accel);
 }
 
-void Wheel::lateral_velocity_tick() {
+void Wheel::lateral_velocity_tick(int accelerate) {
   b2Vec2 lateral_direction = body->GetWorldVector({1, 0});
   b2Vec2 velocity = body->GetLinearVelocity();
 
@@ -54,43 +75,17 @@ void Wheel::lateral_velocity_tick() {
 
   body->ApplyLinearImpulseToCenter(-1 * body->GetMass() * lateral_velocity,
                                    false);
+
+  if (controlable) {
+    b2Vec2 straight_direction = body->GetWorldVector({0, 1});
+    body->ApplyForce(accelerate * 1000.0f * straight_direction,
+                     body->GetWorldCenter(), accelerate != 0);
+  }
 }
 
-void Wheel::angular_velocity_tick() { body->SetAngularVelocity(0.0); }
-
-void Wheel::control_tick(std::unordered_set<Action> const& actions) {
-  int accel = 0;
-  int right = 0;
-
-  for (Action action : actions) {
-    switch (action) {
-      case ACCEL:
-        ++accel;
-        break;
-      case BREAK:
-        --accel;
-        break;
-      case RIGHT:
-        ++right;
-        break;
-      case LEFT:
-        --right;
-        break;
-    }
-  }
-
-  b2Vec2 direction = body->GetWorldVector({0, 1});
-  b2Vec2 center = body->GetWorldCenter();
-
-  if (accel != 0) {
-    std::cerr << "applying_force" << std::endl;
-    body->ApplyForce(accel * 100.0f * direction, center, true);
-  }
-
-  if (right != 0) {
-    std::cerr << "applying_torque" << std::endl;
-    body->ApplyTorque(right * 15.0f, true);
-  }
+void Wheel::angular_velocity_tick(int turn_right) {
+  turn_right = turn_right * -15;
+  body->SetAngularVelocity(turn_right);
 }
 
 Car::Car(b2World* world, b2Body* ground, b2Vec2 position) {

@@ -36,9 +36,8 @@ class Wheel {
 
   b2FrictionJoint* friction_joint;
 
-  void lateral_velocity_tick();
-  void angular_velocity_tick();
-  void control_tick(std::unordered_set<Action> const& actions);
+  void lateral_velocity_tick(int accelerate);
+  void angular_velocity_tick(int turn_right);
 };
 
 enum WheelID { FRONT_LEFT, FRONT_RIGHT, REAR_LEFT, REAR_RIGHT };
