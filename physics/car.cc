@@ -78,13 +78,13 @@ void Wheel::lateral_velocity_tick(int accelerate) {
 
   if (controlable) {
     b2Vec2 straight_direction = body->GetWorldVector({0, 1});
-    body->ApplyForce(accelerate * 1000.0f * straight_direction,
+    body->ApplyForce(accelerate * 300.0f * straight_direction,
                      body->GetWorldCenter(), accelerate != 0);
   }
 }
 
 void Wheel::angular_velocity_tick(int turn_right) {
-  turn_right = turn_right * -15;
+  turn_right = turn_right * 15;
   body->SetAngularVelocity(turn_right);
 }
 

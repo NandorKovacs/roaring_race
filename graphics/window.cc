@@ -50,8 +50,8 @@ DrawableCar::DrawableCar() {
   wheel_joint[1] = {1.5, -1.5};
   wheel_joint[2] = {-2, -7.5};
   wheel_joint[3] = {2, -7.5};
-  wheel_size.x = 0.5;
-  wheel_size.y = 1;
+  wheel_size.x = 0.75;
+  wheel_size.y = 1.5;
 
   for (sf::Vector2f vv : v) {
     shape.push_back(sf::Vertex(vv, sf::Color::Green));
@@ -79,9 +79,7 @@ void DrawableCar::draw(sf::RenderTarget& target,
   // sf::Vector2u origin = target.getSize();
   // origin.x /= 2;
   // origin.y /= 2;
-
-  states.transform.rotate(state.angle + 180, {0, 0});
-  states.transform.translate(state.position);
+  states.transform.translate(state.position).rotate(state.angle, {0, 0});
 
   draw_wheels(target, states);
   target.draw(shape.data(), shape.size(), sf::Triangles, states);

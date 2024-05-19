@@ -40,6 +40,14 @@ struct CarData {
   std::pair<float, float> position{0, 0};
   float angle = 0;
   float wheel_angle[2] = {0, 0};
+
+  // for debugging
+  friend std::ostream& operator<<(std::ostream &os, CarData const& data) {
+    os << "{pos: " << data.position.first << "," << data.position.second << "|angle "
+       << data.angle << "|wheel_angle " << data.wheel_angle[0] << "\t" << data.wheel_angle[1]
+       << "}";
+    return os;
+  }
 };
 
 #endif

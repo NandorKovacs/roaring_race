@@ -9,6 +9,7 @@ int main() {
   CarData state = car.get_state();
   state.wheel_angle[0] = 20;
   state.wheel_angle[1] = 20;
+  state.angle = 30;
   car.set_state(state);
 
   window.add_drawable(&car);

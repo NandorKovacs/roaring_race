@@ -37,6 +37,10 @@ namespace ph {
 using Clock = std::chrono::high_resolution_clock;
 using TimePoint = std::chrono::time_point<Clock>;
 
+float rad_to_deg(float rad) {
+  return (rad / b2_pi) * 180;
+}
+
 void physics_main(MutexVar<CarData> &car_state,
                   MutexInputHandler &input_handler,
                   MutexVar<bool> &is_running) {
@@ -66,10 +70,12 @@ void physics_main(MutexVar<CarData> &car_state,
     }
 
     // setting car state
-    car_state.set(
-        {{car.pos().x, car.pos().y},
-         car.angle(),
-         {car.wheel_angle(FRONT_LEFT), car.wheel_angle(FRONT_RIGHT)}});
+    CarData data;
+    data.angle = rad_to_deg(car.angle());
+    data.wheel_angle[0] = rad_to_deg(car.wheel_angle(FRONT_LEFT));
+    data.wheel_angle[1] = rad_to_deg(car.wheel_angle(FRONT_RIGHT));
+    data.position = {car.pos().x, car.pos().y};
+    car_state.set(data);
     // --
 
     // scheduling
