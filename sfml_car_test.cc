@@ -1,4 +1,4 @@
-#include "graphics/window.h"
+#include "graphics/sfml_window.h"
 #include "common/common_data.h"
 namespace gui {
 int main() {
