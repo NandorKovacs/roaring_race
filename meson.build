@@ -8,7 +8,7 @@ sfml_dep = [
   dependency('sfml-window'),
 ]
 
-graphics_lib = library('graphics','graphics/window.cc', dependencies : sfml_dep)
+graphics_lib = library('graphics','graphics/sfml_window.cc', dependencies : sfml_dep)
 graphics_dep = [sfml_dep , declare_dependency(link_with : graphics_lib)]
 # ---
 

@@ -1,4 +1,4 @@
-#include "window.h"
+#include "sfml_window.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Drawable.hpp>

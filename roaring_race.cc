@@ -10,7 +10,7 @@
 
 #include "common/common_data.h"
 #include "common/key_handler.h"
-#include "graphics/window.h"
+#include "graphics/sfml_window.h"
 #include "physics/car.h"
 
 class MutexInputHandler : public MutexVar<InputHandler> {
