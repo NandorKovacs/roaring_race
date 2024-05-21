@@ -8,8 +8,16 @@ sfml_dep = [
   dependency('sfml-window'),
 ]
 
-graphics_lib = library('graphics','graphics/sfml_window.cc', dependencies : sfml_dep)
-graphics_dep = [sfml_dep , declare_dependency(link_with : graphics_lib)]
+#raylib_proj = subproject('raylib')
+#raylib_dep = raylib_proj.get_variable('raylib_dep')
+raylib_dep = dependency('raylib', fallback: ['raylib', 'raylib_dep'])
+
+sfml_graphics_lib = library('sfml_graphics','graphics/sfml_window.cc', dependencies : sfml_dep)
+sfml_graphics_dep = [sfml_dep , declare_dependency(link_with : sfml_graphics_lib)]
+
+raylib_graphics_lib = library('raylib_graphics','graphics/raylib_window.cc', dependencies : raylib_dep)
+raylib_graphics_dep = [raylib_dep , declare_dependency(link_with : raylib_graphics_lib)]
+
 # ---
 
 # physics things:
@@ -24,10 +32,11 @@ common_lib = library('common', ['common/common_data.h', 'common/key_handler.h'],
 common_dep = [sfml_dep, declare_dependency(link_with: common_lib)]
 # ---
 
-executable('sfml_window_test', 'sfml_window_test.cc', dependencies : graphics_dep)
-executable('sfml_car_test', 'sfml_car_test.cc', dependencies : graphics_dep)
+executable('sfml_window_test', 'sfml_window_test.cc', dependencies : sfml_graphics_dep)
+executable('sfml_car_test', 'sfml_car_test.cc', dependencies : sfml_graphics_dep)
 
 executable('physics_test', 'physics_test.cc', dependencies : physics_dep)
 executable('sfml_events_test', 'sfml_event_test.cc', dependencies: sfml_dep)
 
-executable('roaring_race', 'roaring_race.cc', dependencies: [graphics_dep, physics_dep, common_dep])
+executable('roaring_race', 'roaring_race.cc', dependencies: [sfml_graphics_dep, physics_dep, common_dep])
+executable('raylib_car_test', 'raylib_car_test.cc', dependencies: [raylib_graphics_dep, common_dep])

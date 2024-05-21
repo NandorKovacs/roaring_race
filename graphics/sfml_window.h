@@ -1,5 +1,5 @@
-#ifndef ROARING_RACE_WINDOW
-#define ROARING_RACE_WINDOW
+#ifndef ROARING_RACE_SFML_WINDOW
+#define ROARING_RACE_SFML_WINDOW
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Drawable.hpp>
@@ -17,7 +17,7 @@ class GameWindow {
   void add_drawable(sf::Drawable* drawable) { drawables.insert(drawable); }
   void pop_drawable(sf::Drawable* drawable) { drawables.erase(drawable); }
 
-  bool isOpen();
+  bool is_open();
   void close();
 
  private:

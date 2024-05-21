@@ -3,6 +3,7 @@
 #include <functional>
 #include <mutex>
 #include <utility>
+#include <ostream>
 
 template <typename T>
 class MutexVar {

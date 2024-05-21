@@ -125,7 +125,7 @@ void window_main(MutexVar<CarData> &car_state, MutexInputHandler &input_handler,
 
   window.add_drawable(&car);
 
-  while (window.isOpen()) {
+  while (window.is_open()) {
     if (!is_running.get()) {
       window.close();
     }

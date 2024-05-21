@@ -35,7 +35,7 @@ void GameWindow::tick() {
   window.display();
 }
 
-bool GameWindow::isOpen() { return window.isOpen(); }
+bool GameWindow::is_open() { return window.isOpen(); }
 void GameWindow::close() { window.close(); }
 
 DrawableCar::DrawableCar() {
