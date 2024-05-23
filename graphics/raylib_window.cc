@@ -1,5 +1,7 @@
 #include "raylib_window.h"
 
+#include <iostream>
+
 #include "raylib.h"
 #include "raymath.h"
 
@@ -11,7 +13,6 @@ GameWindow::GameWindow() {
   SetTargetFPS(60);
 
   camera.target = {0, 0};
-  camera.offset = {800, 600};
 
   camera.rotation = 0.0f;
   camera.zoom = 1.0f;
@@ -22,7 +23,6 @@ void GameWindow::tick() {
     CloseWindow();
   }
 
-  camera.target = {0, 0};
   camera.offset = {GetScreenWidth() / 2.0f, GetScreenHeight() / 2.0f};
 
   BeginDrawing();
@@ -31,9 +31,11 @@ void GameWindow::tick() {
 
     BeginMode2D(camera);
     {
+      std::cout << "-----" << std::endl;
       for (Drawable* d : drawables) {
         d->draw();
       }
+      std::cout << "-----" << std::endl;
     }
     EndMode2D();
   }
@@ -68,18 +70,19 @@ void DrawableCar::draw() {
 
   std::array<Rectangle, 4> wheels;
   for (int i = 0; i < 4; ++i) {
-    wheels[i].height = 1;
-    wheels[i].width = 0.5;
+    wheels[i].height = 1 * 10;
+    wheels[i].width = 0.5 * 10;
 
     Vector2 joint = Vector2Transform(wheel_joint[i], car_mat);
 
-    wheels[i].x = joint.x - (wheels[i].width / 2);
-    wheels[i].y = joint.y + (wheels[i].height / 2);
+    wheels[i].x = joint.x * 10;
+    wheels[i].y = joint.y * 10;
   }
 
-  DrawTriangleStrip(new_triangles.data(), new_triangles.size(), LIME);
+  //DrawTriangleStrip(new_triangles.data(), new_triangles.size(), LIME);
   for (int i = 0; i < 4; ++i) {
     Rectangle w = wheels[i];
+    std::cout << w.width << " " << w.height << " " << w.x <<  " " << w.y << std::endl;
     DrawRectanglePro(w, {w.width / 2, w.height / 2}, state.wheel_angle[i],
                      BLACK);
   }
