@@ -37,7 +37,8 @@ void Wheel::set_friction(float mass, float coeff) {
 }
 
 void Wheel::tick(std::unordered_set<Action> const& actions) {
-  // TODO: stop angular acceleration if reached treshold -> move joint memory from Car to Wheel
+  // TODO: stop angular acceleration if reached treshold -> move joint memory
+  // from Car to Wheel
   // TODO: bounce back tires to natural automatically
 
   int accel = 0;
@@ -85,6 +86,22 @@ void Wheel::lateral_velocity_tick(int accelerate) {
 
 void Wheel::angular_velocity_tick(int turn_right) {
   turn_right = turn_right * 15;
+
+  b2RevoluteJoint* rev_joint = (b2RevoluteJoint*)car_joint;
+
+  if (turn_right != 0) {
+    double left_dist = std::abs(rev_joint->GetJointAngle() - rev_joint->GetLowerLimit());
+    double right_dist = std::abs(rev_joint->GetJointAngle() - rev_joint->GetUpperLimit());
+
+    if (left_dist < 0.001) {
+      turn_right = std::max(0, turn_right);
+    }
+  
+    if (right_dist < 0.001) {
+      turn_right = std::min(0, turn_right);
+    }
+  }
+
   body->SetAngularVelocity(turn_right);
 }
 
@@ -125,12 +142,12 @@ Car::Car(b2World* world, b2Body* ground, b2Vec2 position) {
 
   front_joint_def.Initialize(hull, wheel[FRONT_LEFT]->body,
                              wheel[FRONT_LEFT]->body->GetWorldCenter());
-  front_joint[FRONT_LEFT] =
+  wheel[FRONT_LEFT]->car_joint =
       (b2RevoluteJoint*)world->CreateJoint(&front_joint_def);
 
   front_joint_def.Initialize(hull, wheel[FRONT_RIGHT]->body,
                              wheel[FRONT_RIGHT]->body->GetWorldCenter());
-  front_joint[FRONT_RIGHT] =
+  wheel[FRONT_RIGHT]->car_joint =
       (b2RevoluteJoint*)world->CreateJoint(&front_joint_def);
 
   // rear wheels
@@ -138,13 +155,12 @@ Car::Car(b2World* world, b2Body* ground, b2Vec2 position) {
 
   rear_joint_def.Initialize(hull, wheel[REAR_LEFT]->body,
                             wheel[REAR_LEFT]->body->GetWorldCenter());
-  rear_joint[REAR_LEFT - 2] = (b2WeldJoint*)world->CreateJoint(&rear_joint_def);
+  wheel[REAR_LEFT]->car_joint =
+      (b2WeldJoint*)world->CreateJoint(&rear_joint_def);
 
   rear_joint_def.Initialize(hull, wheel[REAR_RIGHT]->body,
                             wheel[REAR_RIGHT]->body->GetWorldCenter());
-  rear_joint[REAR_LEFT - 2] = (b2WeldJoint*)world->CreateJoint(&rear_joint_def);
-
-  rear_joint[REAR_RIGHT - 2] =
+  wheel[REAR_LEFT]->car_joint =
       (b2WeldJoint*)world->CreateJoint(&rear_joint_def);
 }
 

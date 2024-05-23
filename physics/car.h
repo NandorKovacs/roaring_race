@@ -19,6 +19,8 @@ const float friciton_coefficient = 0.9;  // asphalt, according to top google hit
 
 enum Action { ACCEL, BREAK, LEFT, RIGHT };
 
+class Car;
+
 class Wheel {
  public:
   b2Body* body;
@@ -34,7 +36,10 @@ class Wheel {
 
   bool controlable;
 
+
   b2FrictionJoint* friction_joint;
+  friend Car;
+  b2Joint* car_joint;
 
   void lateral_velocity_tick(int accelerate);
   void angular_velocity_tick(int turn_right);
