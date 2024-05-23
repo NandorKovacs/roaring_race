@@ -10,7 +10,7 @@
 
 #include "common/common_data.h"
 #include "common/key_handler.h"
-#include "graphics/sfml_window.h"
+#include "graphics/raylib_window.h"
 #include "physics/car.h"
 
 class MutexInputHandler : public MutexVar<InputHandler> {
@@ -71,9 +71,9 @@ void physics_main(MutexVar<CarData> &car_state,
 
     // setting car state
     CarData data;
-    data.angle = rad_to_deg(car.angle());
-    data.wheel_angle[0] = rad_to_deg(car.wheel_angle(FRONT_LEFT));
-    data.wheel_angle[1] = rad_to_deg(car.wheel_angle(FRONT_RIGHT));
+    data.angle = car.angle();
+    data.wheel_angle[0] = car.wheel_angle(FRONT_LEFT);
+    data.wheel_angle[1] = car.wheel_angle(FRONT_RIGHT);
     data.position = {car.pos().x, car.pos().y};
     car_state.set(data);
     // --

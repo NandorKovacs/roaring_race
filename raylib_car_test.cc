@@ -7,9 +7,9 @@ int main() {
   DrawableCar car{};
 
   CarData state = car.get_state();
-  state.wheel_angle[0] = 20;
-  state.wheel_angle[1] = 20;
-  state.angle = 30;
+  state.wheel_angle[0] = PI/9;
+  state.wheel_angle[1] = PI/9;
+  state.angle = PI/6;
   car.set_state(state);
 
   window.add_drawable(&car);

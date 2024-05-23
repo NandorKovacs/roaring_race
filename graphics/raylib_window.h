@@ -30,6 +30,9 @@ class GameWindow {
  private:
   Camera2D camera;
 
+  const double TARGET_PPMM = 3.77358490566;
+  double default_zoom = 1.0;
+
   std::unordered_set<Drawable*> drawables;
 };
 
